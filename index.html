@@ -1,0 +1,279 @@
+
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ads Alchemist AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="index.css">
+    <script type="importmap">
+    {
+      "imports": {
+        "@google/genai": "https://esm.sh/@google/genai@^1.3.0"
+      }
+    }
+    </script>
+</head>
+<body>
+    <div id="app-container">
+        <header>
+            <h1>
+                <span class="g-blue">A</span><span class="g-red">d</span><span class="g-yellow">s</span>
+                <span class="g-ads">Alchemist</span>
+                <span class="analyzer-text">AI</span>
+            </h1>
+            <div class="header-controls">
+                <div id="global-controls-form-view" class="global-controls" style="display: none;">
+                    {/* Global Comparison Type Select Removed */}
+                </div>
+                <button id="theme-toggle" aria-label="Toggle theme">
+                    <span class="theme-icon-light">☀️</span>
+                    <span class="theme-icon-dark">🌙</span>
+                    <span class="sr-only">Toggle Dark/Light Theme</span>
+                </button>
+            </div>
+        </header>
+
+        <main id="main-content">
+            <div id="error-message" role="alert" style="display:none;"></div>
+
+            <div id="form-view">
+                <form id="ads-form" aria-labelledby="form-title">
+                    <h2 id="form-title" class="sr-only">Ads Campaign Data Input Form</h2>
+
+                    <section id="general-info-section" aria-labelledby="general-info-heading">
+                        <h2 id="general-info-heading">General Campaign Information</h2>
+                        <div class="form-grid">
+                            <div class="form-group full-width-group">
+                                <label for="website-url">Website URL (Mandatory for In-depth Analysis):</label>
+                                <input type="url" id="website-url" name="website-url" placeholder="e.g., https://www.example.com" required>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="ai-focus-section" aria-labelledby="ai-focus-heading">
+                        <h2 id="ai-focus-heading">AI Analysis Focus (Optional)</h2>
+                        <p>Provide specific instructions, questions, or areas you want the AI to particularly focus on during its analysis and recommendation generation.</p>
+                        <div class="form-group full-width-group">
+                            <label for="ai-focus-instructions">Special Instructions for AI:</label>
+                            <textarea id="ai-focus-instructions" name="ai-focus-instructions" rows="3" placeholder="e.g., Focus heavily on improving conversion rates for 'Campaign X'. Why is 'Keyword Y' underperforming despite high relevancy? Analyze competitive pressure on 'Ad Group Z'."></textarea>
+                        </div>
+                    </section>
+
+                    <section id="campaign-performance-csv-section" aria-labelledby="campaign-performance-csv-heading">
+                        <h2 id="campaign-performance-csv-heading">1. Campaign Performance (CSV File)</h2>
+                        <p>Ideal Contents: Campaign Name, ID, Status, Budget Amount, Delivery Method, Bid Strategy, Goal, Clicks, Impressions, Cost, Conversions, Conv. Value, CPA, ROAS, CTR, Avg. CPC, All Impression Share Metrics, Campaign-level Location/Language Targets. **This CSV should also contain current and any comparison period metrics.**</p>
+                        <div class="form-group full-width-group file-input-group">
+                            <label for="campaign-performance-csv-file" class="file-input-label">Choose Campaign Performance CSV...</label>
+                            <input type="file" id="campaign-performance-csv-file" name="campaign-performance-csv-file" accept=".csv" class="visually-hidden-file-input">
+                            <span id="campaign-performance-csv-filename" class="file-name-display">No file selected</span>
+                        </div>
+                    </section>
+
+                    <section id="search-query-report-csv-section" aria-labelledby="search-query-report-csv-heading">
+                        <h2 id="search-query-report-csv-heading">2. Search Query Report (CSV File)</h2>
+                        <p>Ideal Contents: Search Term, Match Type, Keyword, Campaign, Ad Group, Clicks, Impressions, CTR, Cost, Conversions, CPA, Conv. Value, ROAS, Added/Excluded status. **This CSV is the primary source for search term analysis.**</p>
+                        <div class="form-group full-width-group file-input-group">
+                            <label for="search-query-report-csv-file" class="file-input-label">Choose Search Query Report CSV...</label>
+                            <input type="file" id="search-query-report-csv-file" name="search-query-report-csv-file" accept=".csv" class="visually-hidden-file-input">
+                            <span id="search-query-report-csv-filename" class="file-name-display">No file selected</span>
+                        </div>
+                    </section>
+
+                    <section id="ads-schedule-location-csv-section" aria-labelledby="ads-schedule-location-csv-heading">
+                        <h2 id="ads-schedule-location-csv-heading">3. Segment Performance (Time, Demographics, Device, Audiences, Networks) (CSV File)</h2>
+                        <p>Ideal Contents: Segment by Day/Hour, Age, Gender, Income, Parental Status, Device, Audience Name/Type, Network. Include performance metrics (Clicks, Cost, Conversions) and any configured bid modifiers or targeting settings for these segments.</p>
+                        <div class="form-group full-width-group file-input-group">
+                            <label for="ads-schedule-location-csv-file" class="file-input-label">Choose Segment Performance CSV...</label>
+                            <input type="file" id="ads-schedule-location-csv-file" name="ads-schedule-location-csv-file" accept=".csv" class="visually-hidden-file-input">
+                            <span id="ads-schedule-location-csv-filename" class="file-name-display">No file selected</span>
+                        </div>
+                    </section>
+
+                    <section id="auction-insights-csv-section" aria-labelledby="auction-insights-csv-heading">
+                        <h2 id="auction-insights-csv-heading">4. Auction Insights (CSV File)</h2>
+                        <p>Ideal Contents: Segment by Campaign/Ad Group. Your Domain, Competitor Domains, Impression Share, Overlap Rate, Position Above Rate, Top of Page Rate, Abs. Top of Page Rate, Outranking Share.</p>
+                        <div class="form-group full-width-group file-input-group">
+                            <label for="auction-insights-csv-file" class="file-input-label">Choose Auction Insights CSV...</label>
+                            <input type="file" id="auction-insights-csv-file" name="auction-insights-csv-file" accept=".csv" class="visually-hidden-file-input">
+                            <span id="auction-insights-csv-filename" class="file-name-display">No file selected</span>
+                        </div>
+                    </section>
+
+                    <section id="location-performance-csv-section" aria-labelledby="location-performance-csv-heading">
+                        <h2 id="location-performance-csv-heading">5. Detailed Location Performance (CSV File)</h2>
+                        <p>Ideal Contents: Country, Region, City, Postal Code, Configured Bid Modifier, Exclusion Status, Clicks, Impressions, Cost, Conversions, CPA, Conv. Value.</p>
+                        <div class="form-group full-width-group file-input-group">
+                            <label for="location-performance-csv-file" class="file-input-label">Choose Location Performance CSV...</label>
+                            <input type="file" id="location-performance-csv-file" name="location-performance-csv-file" accept=".csv" class="visually-hidden-file-input">
+                            <span id="location-performance-csv-filename" class="file-name-display">No file selected</span>
+                        </div>
+                    </section>
+                    
+                    <section id="keyword-performance-csv-section" aria-labelledby="keyword-performance-csv-heading">
+                        <h2 id="keyword-performance-csv-heading">6. Keyword Performance (CSV File)</h2>
+                        <p>Ideal Contents: Keyword Text, ID, Campaign, Ad Group, Status, Match Type, Bid, Quality Score (Overall & Components), Final URL, Clicks, Impressions, Cost, Conversions, CPA, Conv. Value, All Impression Share metrics.</p>
+                        <div class="form-group full-width-group file-input-group">
+                            <label for="keyword-performance-csv-file" class="file-input-label">Choose Keyword Performance CSV...</label>
+                            <input type="file" id="keyword-performance-csv-file" name="keyword-performance-csv-file" accept=".csv" class="visually-hidden-file-input">
+                            <span id="keyword-performance-csv-filename" class="file-name-display">No file selected</span>
+                        </div>
+                    </section>
+
+                    <section id="ads-csv-section" aria-labelledby="ads-csv-heading">
+                        <h2 id="ads-csv-heading">7. Ads Performance & Creative Details (CSV File)</h2>
+                        <p>Ideal Contents: Ad ID, Type, Campaign, Ad Group, Status, Policy Details. Ad Components (Headlines, Descriptions, Paths, URLs, Image/Video details, Ad Strength). Ad-Level Performance. General Asset Usage (e.g., this ad uses Sitelinks). For *individual asset performance*, use section 12.</p>
+                        <div class="form-group full-width-group file-input-group">
+                            <label for="ads-csv-file" class="file-input-label">Choose Ads Performance CSV...</label>
+                            <input type="file" id="ads-csv-file" name="ads-csv-file" accept=".csv" class="visually-hidden-file-input">
+                            <span id="ads-csv-filename" class="file-name-display">No file selected</span>
+                        </div>
+                    </section>
+
+                    <section id="campaign-settings-csv-section" aria-labelledby="campaign-settings-csv-heading">
+                        <h2 id="campaign-settings-csv-heading">8. Campaign Settings (CSV File)</h2>
+                        <p>Ideal Contents: Campaign Name, ID, Goal Type (Sales, Leads, etc.), Networks Configured (Search, Display, Partners), Explicit Location Targeting Rules, Language Targeting, Configured Ad Schedule (e.g., Mon-Fri, 9am-5pm). **Budget information (total budget, days remaining if applicable) should also be here.**</p>
+                        <div class="form-group full-width-group file-input-group">
+                            <label for="campaign-settings-csv-file" class="file-input-label">Choose Campaign Settings CSV...</label>
+                            <input type="file" id="campaign-settings-csv-file" name="campaign-settings-csv-file" accept=".csv" class="visually-hidden-file-input">
+                            <span id="campaign-settings-csv-filename" class="file-name-display">No file selected</span>
+                        </div>
+                    </section>
+
+                    <section id="ad-group-settings-csv-section" aria-labelledby="ad-group-settings-csv-heading">
+                        <h2 id="ad-group-settings-csv-heading">9. Ad Group Settings (CSV File)</h2>
+                        <p>Ideal Contents: Campaign Name, Ad Group Name, ID, Status, Default Bid (if applicable), Ad Rotation Setting. For Display/Video Ad Groups: Configured Targeting Methods (Keywords, Audiences, Topics, Placements).</p>
+                        <div class="form-group full-width-group file-input-group">
+                            <label for="ad-group-settings-csv-file" class="file-input-label">Choose Ad Group Settings CSV...</label>
+                            <input type="file" id="ad-group-settings-csv-file" name="ad-group-settings-csv-file" accept=".csv" class="visually-hidden-file-input">
+                            <span id="ad-group-settings-csv-filename" class="file-name-display">No file selected</span>
+                        </div>
+                    </section>
+
+                    <section id="exclusion-lists-csv-section" aria-labelledby="exclusion-lists-csv-heading">
+                        <h2 id="exclusion-lists-csv-heading">10. Exclusion Lists (CSV File)</h2>
+                        <p>Ideal Contents: Negative Keyword Text & Match Type, Placement Exclusion URLs, IP Exclusions. Specify List Name and Level (Campaign/Ad Group) if applicable.</p>
+                        <div class="form-group full-width-group file-input-group">
+                            <label for="exclusion-lists-csv-file" class="file-input-label">Choose Exclusion Lists CSV...</label>
+                            <input type="file" id="exclusion-lists-csv-file" name="exclusion-lists-csv-file" accept=".csv" class="visually-hidden-file-input">
+                            <span id="exclusion-lists-csv-filename" class="file-name-display">No file selected</span>
+                        </div>
+                    </section>
+
+                    <section id="conversion-actions-csv-section" aria-labelledby="conversion-actions-csv-heading">
+                        <h2 id="conversion-actions-csv-heading">11. Conversion Action Settings (CSV File)</h2>
+                        <p>Ideal Contents: Conversion Action Name, Source, Category, Count (All/One), Conversion Window, Include in "Conversions" (Yes/No - Primary/Secondary), Value Tracking (e.g., Same value, Different values), Default Value, Attribution Model selected.</p>
+                        <div class="form-group full-width-group file-input-group">
+                            <label for="conversion-actions-csv-file" class="file-input-label">Choose Conversion Actions CSV...</label>
+                            <input type="file" id="conversion-actions-csv-file" name="conversion-actions-csv-file" accept=".csv" class="visually-hidden-file-input">
+                            <span id="conversion-actions-csv-filename" class="file-name-display">No file selected</span>
+                        </div>
+                    </section>
+
+                    <section id="asset-details-csv-section" aria-labelledby="asset-details-csv-heading">
+                        <h2 id="asset-details-csv-heading">12. Individual Asset Details (CSV File)</h2>
+                        <p>Ideal Contents: Asset ID, Asset Type (Sitelink, Callout, Image, Logo etc.), Asset Text/Content, Asset Source (Account, Campaign, Ad Group), Status, Policy details. **Crucially: Performance metrics for *individual assets* (Clicks, Impressions, Cost, Conversions for that specific Sitelink, Image, etc.) if your reporting provides this level of detail.**</p>
+                        <div class="form-group full-width-group file-input-group">
+                            <label for="asset-details-csv-file" class="file-input-label">Choose Individual Asset Details CSV...</label>
+                            <input type="file" id="asset-details-csv-file" name="asset-details-csv-file" accept=".csv" class="visually-hidden-file-input">
+                            <span id="asset-details-csv-filename" class="file-name-display">No file selected</span>
+                        </div>
+                    </section>
+
+                    <button type="submit" id="analyze-button">Analyze & Get Recommendations</button>
+                    <button type="button" id="clear-cache-button" class="utility-button">Clear Cached Form Data</button>
+                </form>
+                 <div id="loading-indicator-main" class="loading-indicator-container" style="display:none;" aria-live="polite" aria-atomic="true">
+                    <p>Preparing analysis dashboard...</p>
+                    <div class="spinner" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="dashboard-view" style="display:none;">
+                <div id="input-summary-column" class="dashboard-column">
+                    <div class="column-header-controls">
+                        <h2 id="input-summary-heading">Input Summary</h2>
+                        <div class="column-export-buttons">
+                            <button class="export-button export-text-button" data-target="input-summary-content" aria-label="Export Input Summary as Text">Txt</button>
+                            <button class="export-button print-button" data-target="input-summary-content" aria-label="Print Input Summary">Print</button>
+                        </div>
+                    </div>
+                    <div id="input-summary-content" class="column-content"></div>
+                    <button id="edit-inputs-button" class="utility-button">Edit Inputs</button>
+                </div>
+                <div class="column-resizer" id="resizer-1" aria-label="Resize input summary and campaign analysis columns"></div>
+                <div id="campaign-analysis-column" class="dashboard-column">
+                    <div class="column-header-controls">
+                        <h2 id="campaign-analysis-heading">Campaign Analysis Report</h2>
+                        <div class="column-export-buttons">
+                            <button class="export-button export-text-button" data-target="campaign-analysis-content" aria-label="Export Campaign Analysis as Text">Txt</button>
+                            <button class="export-button print-button" data-target="campaign-analysis-content" aria-label="Print Campaign Analysis">Print</button>
+                        </div>
+                    </div>
+                    <div id="campaign-analysis-loading" class="loading-indicator-container" style="display:none;" aria-live="polite" aria-atomic="true">
+                        <p>Generating campaign analysis...</p>
+                        <div class="spinner" role="status"><span class="sr-only">Loading...</span></div>
+                    </div>
+                    <div id="campaign-analysis-content" class="column-content" aria-live="polite">
+                         <p>Campaign analysis will appear here.</p>
+                    </div>
+                    <div id="campaign-analysis-sources" class="results-sources-section" style="display:none;"></div>
+                </div>
+                <div class="column-resizer" id="resizer-2" aria-label="Resize campaign analysis and recommendations columns"></div>
+                <div id="recommendations-column" class="dashboard-column">
+                     <div class="column-header-controls">
+                        <h2 id="results-heading">Actionable Recommendations</h2>
+                        <div class="column-export-buttons">
+                            <button class="export-button export-text-button" data-target="results-content" aria-label="Export Recommendations as Text">Txt</button>
+                            <button class="export-button print-button" data-target="results-content" aria-label="Print Recommendations">Print</button>
+                        </div>
+                    </div>
+                     <div id="recommendations-loading" class="loading-indicator-container" style="display:none;" aria-live="polite" aria-atomic="true">
+                        <p>Generating recommendations...</p>
+                        <div class="spinner" role="status"><span class="sr-only">Loading...</span></div>
+                    </div>
+                    <div id="results-content" aria-live="polite" aria-relevant="additions removals text">
+                        <p>Actionable recommendations will appear here.</p>
+                    </div>
+                    <div id="recommendations-sources" class="results-sources-section" style="display:none;"></div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Recommendation Feedback Modal -->
+        <div id="feedback-modal" class="modal" style="display:none;" role="dialog" aria-labelledby="feedback-modal-title" aria-modal="true">
+            <div class="modal-content">
+                <button id="feedback-modal-close" class="modal-close-button" aria-label="Close feedback form">&times;</button>
+                <h3 id="feedback-modal-title">Log Feedback for Recommendation</h3>
+                <p id="feedback-modal-rec-title" class="modal-rec-title"></p>
+                <form id="feedback-form">
+                    <input type="hidden" id="feedback-rec-id">
+                    <div class="form-group">
+                        <label for="feedback-text">Observed Outcome / Notes:</label>
+                        <textarea id="feedback-text" name="feedback-text" rows="4" required placeholder="Describe the results after applying this recommendation..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="feedback-rating">Effectiveness Rating:</label>
+                        <select id="feedback-rating" name="feedback-rating" required>
+                            <option value="">Select rating...</option>
+                            <option value="effective">Effective</option>
+                            <option value="neutral">Neutral / Unsure</option>
+                            <option value="ineffective">Ineffective</option>
+                        </select>
+                    </div>
+                    <button type="submit" id="submit-feedback-button" class="utility-button">Submit Feedback</button>
+                </form>
+            </div>
+        </div>
+
+
+        <footer>
+            <p></p> 
+        </footer>
+    </div>
+    <script type="module" src="index.tsx" defer></script>
+</body>
+</html>

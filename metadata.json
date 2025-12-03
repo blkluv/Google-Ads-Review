@@ -1,0 +1,6 @@
+{
+  "name": "Google Ads Reviewer-test app- var 1",
+  "description": "An intelligent agent that analyzes manually entered Google Ads campaign metrics and provides optimization recommendations using Gemini.",
+  "requestFramePermissions": [],
+  "prompt": ""
+}
