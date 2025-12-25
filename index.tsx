@@ -1,5 +1,3 @@
-
-
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
@@ -974,15 +972,20 @@ function initializeApp(): boolean {
         return false;
     }
     
-    if (typeof process === 'undefined' || !process.env || typeof process.env.API_KEY !== 'string' || process.env.API_KEY.trim() === '') {
-        displayUserMessage('error', "Critical Setup Error: API_KEY is missing or invalid in process.env. This application requires this environment variable to be set for Gemini AI access.");
+    // IMPORTANT: Check for environment variable in a Vercel-compatible way
+    // Vercel makes environment variables prefixed with NEXT_PUBLIC_ available client-side
+    // If you added the variable as GEMINI_API_KEY in Vercel, check for it like this:
+    const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY;
+    
+    if (!apiKey || typeof apiKey !== 'string' || apiKey.trim() === '') {
+        displayUserMessage('error', "Critical Setup Error: GEMINI_API_KEY or API_KEY is missing or invalid in process.env. This application requires this environment variable to be set for Gemini AI access.");
         if (analyzeButton) { analyzeButton.disabled = true; analyzeButton.textContent = "API Key Missing"; }
         formElementsToDisable.forEach(el => { if (el) el.disabled = true; });
         return false;
     }
 
     try {
-        ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+        ai = new GoogleGenAI({ apiKey: apiKey });
     } catch (e) {
         console.error("Failed to initialize GoogleGenAI SDK:", e);
         const errorMsg = e instanceof Error ? e.message : String(e);
